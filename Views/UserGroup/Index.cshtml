@@ -1,0 +1,166 @@
+﻿@using BugTracker.Models.ViewModel;
+@model List<BugTracker.Models.ViewModel.UserGroupVM>;
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<h5>Welcome to user group page</h5>
+
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            @if(Model != null && Model.Count > 0)
+                            {
+                                <th>ID</th>
+                                <th>Group Name</th>
+                                <th>Group Code</th>
+                                <th>Action</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(Model != null && Model.Count > 0)
+                        {
+                            foreach (UserGroupVM item in Model)
+                            {
+                                <tr>
+                                    <td>@item.UserGroupID</td>
+                                    <td>@item.UserGroupName</td>
+                                    <td>@item.UserGroupCode</td>
+                                    <td>
+                                        <button type="button" class="btn btn-secondary btn-sm btnEdit" data-key="@item.UserGroupID">EDIT</button>
+                                        <button type="button" class="btn btn-danger btn-sm btnDelete" data-key="@item.UserGroupID">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        } 
+                        else
+                        {
+                            <h3>No data found.</h3>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">User Group Name</label>
+                        <input type="text" class="form-control" id="txtUserGroupName">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">User Group Code</label>
+                        <input type="text" class="form-control" id="txtUserGroupCode">
+                    </div>
+                    <button type="button" class="btn btn-primary btnSubmit">Submit</button>
+                    <button type="button" class="btn btn-danger btnCancel">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        debugger;
+        $(document).ready(function () {
+
+        });
+
+        $(document).on('click', '.btnCancel', function () {
+            clearForm();
+        });
+
+
+        $(document).on("click", ".btnSubmit", function () {
+            debugger;
+            var grpName = $('#txtUserGroupName').val();
+            var grpCode = $('#txtUserGroupCode').val();
+
+            if (grpName == '') {
+                toastr["error"]("Enter User Group Name")
+            } else if (grpCode == '') {
+                toastr["error"]("Enter User Group Code")
+            } else {
+                $.ajax({
+                    method: 'get',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("Create", "UserGroup")?groupname=' + grpName + '&groupcode='+grpCode,
+                    success: function (res) {
+                        debugger;
+                        if (res.success) {
+                            toastr["success"](res.message);
+                            clearForm();
+                        } else {
+                            toastr["error"](res.message);
+                        }
+                    },
+                    error: function (e) { },
+                    beforeSend: function () {
+                        //block ui
+                        //$.blockUI();
+                    },
+                    complete: function () {
+                        // unblock ui
+                        //$.unBlockUI();
+                    }
+                });
+            }
+
+
+
+        });
+
+
+        $(document).on('click', '.btnDelete', function () {
+            var groupid = $(this).data('key');
+
+
+            var ok = confirm('are you sure to delete data?');
+            if (ok) {
+                $.ajax({
+                    method: 'get',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("Delete", "UserGroup")?id=' + groupid,
+                    success: function (res) {
+                        if (res.success) {
+                            toastr["success"](res.message);
+                        } else {
+                            toastr["error"](res.message);
+                        }
+                    },
+                    error: function (e) { },
+                    beforeSend: function () {
+                        //block ui
+                        //$.blockUI();
+                    },
+                    complete: function () {
+                        // unblock ui
+                        //$.unBlockUI();
+                    }
+                });
+            }
+
+        });
+
+
+        function clearForm() {
+            $('#txtUserGroupName').val('');
+            $('#txtUserGroupCode').val('');
+        }
+
+
+    </script>
+
+}
